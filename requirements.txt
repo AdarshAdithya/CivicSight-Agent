@@ -1,13 +1,8 @@
-# Core SDK
+google-adk>=1.0.0
 groq>=0.9.0
-
-# Server
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
-python-multipart
-
-# Utilities
-python-dotenv
-
-# Frontend
 streamlit>=1.42.0
+requests>=2.32.0
+pydantic>=2.7.0
+python-dotenv>=1.0.0
