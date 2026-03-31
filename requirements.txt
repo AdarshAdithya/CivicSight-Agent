@@ -1,0 +1,17 @@
+# Core SDK
+groq>=0.9.0
+
+# ADK (used only by civic_agent/agent.py, not by main.py)
+google-adk>=1.0.0
+
+# Web framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# Streamlit UI
+streamlit>=1.42.0
+requests>=2.32.0
+
+# Utilities
+pydantic>=2.7.0
+python-dotenv>=1.0.0
