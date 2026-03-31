@@ -114,8 +114,6 @@ sentry-sdk==2.53.0
 shapely==2.1.2
 shellingham==1.5.4
 six==1.17.0
-# Editable install with no version control (SpeechRecognition==3.14.3)
--e c:\users\adarsh\onedrive\desktop\speech_recognition-master
 SQLAlchemy==2.0.46
 starlette==0.52.1
 sympy==1.14.0
@@ -146,3 +144,4 @@ wcwidth==0.6.0
 websockets==16.0
 Werkzeug==3.1.5
 wrapt==2.1.1
+SpeechRecognition==3.14.3
