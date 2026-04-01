@@ -72,7 +72,7 @@ st.markdown("---")
 # Config
 # ---------------------------------------------------------------------------
 API_BASE = st.sidebar.text_input(
-    "Backend URL", value="http://localhost:8001", help="FastAPI server address"
+    "Backend URL", value="https://civic-sight-agent.vercel.app", help="FastAPI server address"
 )
 
 # ---------------------------------------------------------------------------
