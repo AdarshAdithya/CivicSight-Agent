@@ -4,5 +4,4 @@ pydantic
 python-dotenv
 groq
 requests
-streamlit
 google-adk
