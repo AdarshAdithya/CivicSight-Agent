@@ -14,7 +14,9 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import Optional
 
+from pathlib import Path
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -119,13 +121,10 @@ async def health_check():
     return {"status": "ok", "agent": "civic_action_agent", "model": MODEL}
 
 
-@app.get("/", tags=["Ops"])
+@app.get("/", response_class=HTMLResponse, tags=["Ops"])
 async def root():
-    return {
-        "service": "CivicSight Civic Action Agent",
-        "docs": "/docs",
-        "health": "/health",
-    }
+    html_path = Path(__file__).parent / "static" / "index.html"
+    return HTMLResponse(content=html_path.read_text(encoding="utf-8"), status_code=200)
 
 
 @app.post("/chat", response_model=ChatResponse, tags=["Agent"])

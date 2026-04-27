@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicSight — AI-Powered Civic Issue Reporting</title>
+    <meta name="description" content="Report civic issues instantly using AI. CivicSight analyses your complaint and registers it with the Government portal in seconds.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ================================================================
+           DESIGN SYSTEM
+           ================================================================ */
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-card-hover: rgba(22, 31, 48, 0.85);
+            --border-subtle: rgba(99, 128, 255, 0.12);
+            --border-glow: rgba(99, 128, 255, 0.3);
+            --text-primary: #f0f4ff;
+            --text-secondary: #8892b0;
+            --text-muted: #5a6380;
+            --accent-blue: #6380ff;
+            --accent-cyan: #36d6e7;
+            --accent-purple: #a78bfa;
+            --accent-gradient: linear-gradient(135deg, #6380ff 0%, #36d6e7 50%, #a78bfa 100%);
+            --severity-critical: #ff4d6a;
+            --severity-high: #ff6b35;
+            --severity-medium: #ffb800;
+            --severity-low: #34d399;
+            --success: #34d399;
+            --error: #ff4d6a;
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 40px rgba(99, 128, 255, 0.15);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ================================================================
+           RESET & BASE
+           ================================================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ================================================================
+           ANIMATED BACKGROUND
+           ================================================================ */
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(99, 128, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(54, 214, 231, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 60% at 50% 50%, rgba(167, 139, 250, 0.04) 0%, transparent 60%);
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(99, 128, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 128, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* ================================================================
+           LAYOUT
+           ================================================================ */
+        .app-container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+            min-height: 100vh;
+        }
+
+        /* ================================================================
+           HEADER
+           ================================================================ */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(99, 128, 255, 0.3);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1rem;
+            padding: 0.35rem 1rem;
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            border-radius: 100px;
+            font-size: 0.78rem;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        /* ================================================================
+           REPORT FORM CARD
+           ================================================================ */
+        .form-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .form-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+        }
+
+        .form-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-description {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            background: rgba(10, 14, 23, 0.6);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            resize: vertical;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .form-textarea:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(99, 128, 255, 0.15);
+        }
+
+        .form-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(10, 14, 23, 0.6);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(99, 128, 255, 0.15);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* ================================================================
+           SUBMIT BUTTON
+           ================================================================ */
+        .submit-btn {
+            width: 100%;
+            padding: 0.9rem 2rem;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.02em;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99, 128, 255, 0.35);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-btn:disabled:hover::before {
+            left: -100%;
+        }
+
+        /* ================================================================
+           LOADING SPINNER
+           ================================================================ */
+        .spinner-overlay {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .spinner-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .spinner-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* ================================================================
+           RESULTS
+           ================================================================ */
+        .results-section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .results-header {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            animation: slideInResult 0.5s ease-out;
+        }
+
+        .result-card-top {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .tracking-id {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, rgba(99, 128, 255, 0.2), rgba(54, 214, 231, 0.15));
+            border: 1px solid rgba(99, 128, 255, 0.3);
+            padding: 0.5rem 1.2rem;
+            border-radius: var(--radius-sm);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1.5px;
+        }
+
+        .tracking-id-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .severity-badge {
+            padding: 0.35rem 0.9rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .severity-critical { background: rgba(255, 77, 106, 0.15); color: var(--severity-critical); border: 1px solid rgba(255, 77, 106, 0.3); }
+        .severity-high     { background: rgba(255, 107, 53, 0.15); color: var(--severity-high); border: 1px solid rgba(255, 107, 53, 0.3); }
+        .severity-medium   { background: rgba(255, 184, 0, 0.15); color: var(--severity-medium); border: 1px solid rgba(255, 184, 0, 0.3); }
+        .severity-low      { background: rgba(52, 211, 153, 0.15); color: var(--severity-low); border: 1px solid rgba(52, 211, 153, 0.3); }
+
+        .result-analysis {
+            padding: 1.5rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .analysis-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .analysis-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .analysis-value {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .result-reply {
+            padding: 1.5rem 2rem;
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+
+        .result-reply p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* ================================================================
+           ERROR STATE
+           ================================================================ */
+        .error-card {
+            background: rgba(255, 77, 106, 0.08);
+            border: 1px solid rgba(255, 77, 106, 0.25);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            animation: shake 0.4s ease-out;
+        }
+
+        .error-icon { font-size: 1.2rem; }
+        .error-text { color: var(--severity-critical); font-size: 0.9rem; line-height: 1.5; }
+
+        /* ================================================================
+           FOOTER
+           ================================================================ */
+        .footer {
+            text-align: center;
+            padding-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            animation: fadeIn 1s ease-out 0.5s both;
+        }
+
+        .footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer a:hover {
+            color: var(--accent-cyan);
+        }
+
+        .tech-stack {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tech-badge {
+            padding: 0.2rem 0.6rem;
+            background: rgba(99, 128, 255, 0.08);
+            border: 1px solid var(--border-subtle);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* ================================================================
+           ANIMATIONS
+           ================================================================ */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 4px 20px rgba(99, 128, 255, 0.3); }
+            50%      { box-shadow: 0 4px 30px rgba(99, 128, 255, 0.5); }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50%      { opacity: 0.3; }
+        }
+        @keyframes slideInResult {
+            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        /* ================================================================
+           RESPONSIVE
+           ================================================================ */
+        @media (max-width: 600px) {
+            .app-container { padding: 1.25rem 1rem 3rem; }
+            .form-card, .result-card { border-radius: var(--radius-lg); }
+            .form-card { padding: 1.5rem; }
+            .result-analysis { grid-template-columns: 1fr; }
+            .result-card-top { padding: 1.25rem; }
+            .result-analysis { padding: 1.25rem; }
+            .result-reply { padding: 1.25rem; }
+            .logo-text { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-mesh"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🏛️</div>
+                <span class="logo-text">CivicSight</span>
+            </div>
+            <p class="header-subtitle">AI-Powered Civic Issue Reporting</p>
+            <div class="header-badge">
+                <span class="status-dot"></span>
+                Agent Online — Groq Llama 3.3
+            </div>
+        </header>
+
+        <!-- REPORT FORM -->
+        <div class="form-card">
+            <h1 class="form-title">📝 Report a Civic Issue</h1>
+            <p class="form-description">Describe the problem and our AI agent will analyse, classify, and register it with the Government portal instantly.</p>
+
+            <form id="reportForm" autocomplete="off">
+                <div class="form-group">
+                    <label class="form-label" for="issueMessage">Issue Description</label>
+                    <textarea
+                        class="form-textarea"
+                        id="issueMessage"
+                        placeholder="e.g. 'There is a large pothole on MG Road near the City Mall entrance causing accidents. It has been there for 2 weeks.'"
+                        required
+                    ></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="imageUrl">Image URL <span style="color: var(--text-muted); text-transform: none; font-weight: 400;">(optional)</span></label>
+                    <input
+                        class="form-input"
+                        id="imageUrl"
+                        type="url"
+                        placeholder="https://example.com/photo.jpg"
+                    >
+                </div>
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🚀 Submit Report
+                </button>
+            </form>
+        </div>
+
+        <!-- LOADING -->
+        <div class="spinner-overlay" id="loadingState">
+            <div class="spinner"></div>
+            <span class="spinner-text">Analysing issue & registering with Government portal…</span>
+        </div>
+
+        <!-- ERROR -->
+        <div id="errorContainer"></div>
+
+        <!-- RESULTS -->
+        <div id="resultsContainer"></div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>Built with ❤️ by CivicSight Team</p>
+            <div class="tech-stack">
+                <span class="tech-badge">FastAPI</span>
+                <span class="tech-badge">Groq Llama 3.3</span>
+                <span class="tech-badge">Google ADK</span>
+                <span class="tech-badge">Vercel</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ================================================================
+        // APP STATE
+        // ================================================================
+        const state = {
+            sessionId: null,
+            isSubmitting: false,
+        };
+
+        const API_BASE = window.location.origin;
+
+        // ================================================================
+        // DOM REFERENCES
+        // ================================================================
+        const form = document.getElementById('reportForm');
+        const messageInput = document.getElementById('issueMessage');
+        const imageInput = document.getElementById('imageUrl');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingState = document.getElementById('loadingState');
+        const errorContainer = document.getElementById('errorContainer');
+        const resultsContainer = document.getElementById('resultsContainer');
+
+        // ================================================================
+        // FORM SUBMISSION
+        // ================================================================
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const message = messageInput.value.trim();
+            if (!message || state.isSubmitting) return;
+
+            state.isSubmitting = true;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Processing…';
+            loadingState.classList.add('active');
+            errorContainer.innerHTML = '';
+
+            try {
+                const payload = {
+                    message: message,
+                    image_url: imageInput.value.trim() || null,
+                    session_id: state.sessionId,
+                };
+
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.detail || `Server error (${response.status})`);
+                }
+
+                const data = await response.json();
+                state.sessionId = data.session_id;
+
+                renderResult(data, message);
+                messageInput.value = '';
+                imageInput.value = '';
+
+            } catch (err) {
+                renderError(err.message);
+            } finally {
+                state.isSubmitting = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Submit Report';
+                loadingState.classList.remove('active');
+            }
+        });
+
+        // ================================================================
+        // RENDER RESULT CARD
+        // ================================================================
+        function renderResult(data, originalMessage) {
+            const analysis = data.issue_analysis || {};
+            const severity = (analysis.severity || 'Medium').toLowerCase();
+
+            const card = document.createElement('div');
+            card.className = 'results-section';
+            card.innerHTML = `
+                <div class="result-card">
+                    <div class="result-card-top">
+                        <div>
+                            <div class="tracking-id-label">Government Tracking ID</div>
+                            <div class="tracking-id">🏷️ ${data.tracking_id || 'N/A'}</div>
+                        </div>
+                        <span class="severity-badge severity-${severity}">${analysis.severity || 'Medium'}</span>
+                    </div>
+                    <div class="result-analysis">
+                        <div class="analysis-item">
+                            <span class="analysis-label">Category</span>
+                            <span class="analysis-value">${analysis.category || '—'}</span>
+                        </div>
+                        <div class="analysis-item">
+                            <span class="analysis-label">Severity</span>
+                            <span class="analysis-value">${analysis.severity || '—'}</span>
+                        </div>
+                        <div class="analysis-item">
+                            <span class="analysis-label">Location</span>
+                            <span class="analysis-value">${analysis.location || '—'}</span>
+                        </div>
+                        <div class="analysis-item">
+                            <span class="analysis-label">Summary</span>
+                            <span class="analysis-value">${analysis.description || '—'}</span>
+                        </div>
+                    </div>
+                    <div class="result-reply">
+                        ${formatReply(data.reply)}
+                    </div>
+                </div>
+            `;
+
+            // Insert at top
+            resultsContainer.insertBefore(card, resultsContainer.firstChild);
+
+            // Add header if first result
+            if (resultsContainer.children.length === 1) {
+                const header = document.createElement('div');
+                header.className = 'results-header';
+                header.id = 'resultsHeaderEl';
+                header.innerHTML = '📋 Submission History';
+                resultsContainer.insertBefore(header, resultsContainer.firstChild);
+            }
+        }
+
+        function formatReply(text) {
+            if (!text) return '<p>Report registered successfully.</p>';
+            return text
+                .split('\n')
+                .filter(line => line.trim())
+                .map(line => `<p>${escapeHtml(line)}</p>`)
+                .join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ================================================================
+        // RENDER ERROR
+        // ================================================================
+        function renderError(message) {
+            errorContainer.innerHTML = `
+                <div class="error-card">
+                    <span class="error-icon">⚠️</span>
+                    <span class="error-text">${escapeHtml(message)}</span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
