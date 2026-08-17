@@ -23,7 +23,7 @@ from tools.report_validator import report_validator
 # Sub-agent 1 — Issue Analyser
 # ---------------------------------------------------------------------------
 issue_analyzer_agent = Agent(
-    model="gemini-2.0-flash",
+    model="gemini-3.5-flash",
     name="issue_analyzer_agent",
     description=(
         "Analyses a civic issue described in text or via an image URL "
@@ -63,7 +63,7 @@ Do not include any additional text, markdown, or code fences.
 # Sub-agent 2 — Report Registrar
 # ---------------------------------------------------------------------------
 report_registrar_agent = Agent(
-    model="gemini-2.0-flash",
+    model="gemini-3.5-flash",
     name="report_registrar_agent",
     description=(
         "Reads the structured issue analysis from the session state and calls "
