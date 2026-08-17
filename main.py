@@ -37,7 +37,7 @@ logger = logging.getLogger("civic_action_agent")
 # ---------------------------------------------------------------------------
 # Groq setup (initialised once at startup)
 # ---------------------------------------------------------------------------
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "openai/gpt-oss-120b"
 client: AsyncGroq = None
 
 

@@ -50,5 +50,5 @@ def report_validator(
         ),
     }
 
-    print(f"[report_validator] Registered issue → {json.dumps(result, indent=2)}")
+    print(f"[report_validator] Registered issue -> {json.dumps(result, indent=2)}")
     return result
